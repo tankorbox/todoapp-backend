@@ -1,0 +1,19 @@
+{
+  "development": {
+    "username": "test",
+    "password": "test",
+    "database": "db-development",
+    "host": "localhost",
+    "port": 6969,
+    "dialect": "test",
+    "operatorsAliases": false
+  },
+  "staging": {
+    "username": "test",
+    "password": "",
+    "database": "",
+    "host": "",
+    "port": 6969,
+    "dialect": "test"
+  }
+}

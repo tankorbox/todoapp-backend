@@ -1,0 +1,45 @@
+{
+  "name": "todoapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tankorbox@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-import": "^1.5.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "debug": "^3.0.1",
+    "file-loader": "^1.1.6",
+    "nodemon": "^1.12.4"
+  },
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "express-fileupload": "^0.4.0",
+    "express-validator": "^5.2.0",
+    "faker": "^4.1.0",
+    "helmet": "^3.12.1",
+    "http-status": "^1.2.0",
+    "jsonwebtoken": "^8.3.0",
+    "moment": "^2.22.2",
+    "morgan": "^1.9.0",
+    "path": "^0.12.7",
+    "pg": "^7.4.3",
+    "sequelize": "^4.38.0",
+    "uuid": "^3.3.2",
+    "winston": "^3.0.0",
+    "winston-daily-rotate-file": "^3.3.0"
+  }
+}
