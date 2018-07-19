@@ -11,19 +11,17 @@ const app = Express();
 
 app
 	.use(Helmet())
-	.use(Helmet.referrerPolicy({ policy: 'same-origin' }))
+	.use(Helmet.referrerPolicy({policy: 'same-origin'}))
 	.use(FileUpload({
-		limits: { fileSize: 5 * 1024 * 1024 }
+		limits: {fileSize: 5 * 1024 * 1024}
 	}))
 	.use(Cors())
 	.use(BodyParser.json())
 	.use(BodyParser.urlencoded({extended: true}))
-	.use(Express.static(Path.resolve(__dirname, '..', 'public'), {maxAge: 31557600000}))
 	.use('/api', Routers)
 	.use(ErrorHandler)
-	.set('views', Path.join(__dirname, 'views'))
+	.use(Express.static(Path.join(__dirname, '..', 'public', 'views')))
+	.set('views', Path.join(__dirname, '..', 'public', 'views'))
 	.set('view engine', 'ejs');
-
-
 
 module.exports = app;

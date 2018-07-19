@@ -26,6 +26,7 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.3",
     "express-fileupload": "^0.4.0",
     "express-validator": "^5.2.0",
@@ -38,6 +39,8 @@
     "path": "^0.12.7",
     "pg": "^7.4.3",
     "sequelize": "^4.38.0",
+    "swagger-jsdoc": "^1.10.2",
+    "swagger-ui": "^3.17.3",
     "uuid": "^3.3.2",
     "winston": "^3.0.0",
     "winston-daily-rotate-file": "^3.3.0"
