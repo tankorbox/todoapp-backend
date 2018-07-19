@@ -1,0 +1,98 @@
+openapi: 3.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: Requests should pass a token header.
+paths:
+  /users:
+    summary: Get users
+    x-swagger-router-controller: user
+    get:
+      security:
+        - bearerAuth: []
+      description: Get a User
+      operationId: getUser
+      responses:
+        200:
+          description: An information of user
+    put:
+      security:
+        - bearerAuth: []
+      description: Update user
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: fullname
+          type: string
+          in: formData
+      operationId: update user
+      responses:
+        200:
+          description: Update User
+    post:
+      security:
+        - bearerAuth: []
+      description: create new user
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: fullname
+          type: string
+          in: formData
+      response:
+        200:
+          description: created new user
+  /users/{id}:
+    summary: Get users
+    x-swagger-router-controller: user
+    delete:
+      security:
+        - bearerAuth: []
+      description: delete user by id
+      parameters:
+        - in: path
+          name: email
+          type: string
+          required: true
+          description: Email of user to verify.
+      operationId: verifyEmail
+      responses:
+        200:
+          description: deleted user
+  /users/avatars/upload:
+    summary: upload avatar
+    x-swagger-router-controller: user
+    post:
+      security:
+        - bearerAuth: []
+      description: Send code to unlock
+      operationId: sendCodeUnlock
+      responses:
+        200:
+          description: Verify email
+  /users/changePassword:
+    summary: change user password
+    x-swagger-router-controller: user
+    post:
+      security:
+        - bearerAuth: []
+      description: Unlock all album
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: code
+          type: string
+          in: formData
+          required: true
+      operationId: unlockAllAlbum
+      responses:
+        200:
+          description: Unlock all album

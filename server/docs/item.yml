@@ -1,0 +1,108 @@
+openapi: 3.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: Requests should pass a token header.
+paths:
+  /attachments:
+    summary: Create new attachemt
+    x-swagger-router-controller: attachment
+    post:
+      security:
+        - bearerAuth: []
+      description: Create new attachemt
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: file
+          type: file
+          in: formData
+          required: true
+        - name: albumId
+          type: string
+          in: formData
+        - name: width
+          type: integer
+          in: formData
+          required: true
+        - name: height
+          type: integer
+          in: formData
+          required: true
+      operationId: create
+      responses:
+        200:
+          description: New attachemt
+  /attachments/{attachmentId}:
+    summary: Show attachment
+    x-swagger-router-controller: attachment
+    get:
+      security:
+        - bearerAuth: []
+      description: Show attachment
+      parameters:
+        - in: path
+          name: attachmentId
+          type: string
+          required: true
+          description: Attachment Id
+      operationId: view
+      responses:
+        200:
+          description: Show attachment
+    delete:
+      security:
+        - bearerAuth: []
+      description: Delete attachment
+      parameters:
+        - in: path
+          name: attachmentId
+          type: string
+          required: true
+          description: Attachment Id
+      operationId: delete
+      responses:
+        200:
+          description: Delete attachment
+  /attachments/{attachmentsId}/moveTrash:
+    summary: Move attachment to trash
+    x-swagger-router-controller: attachment
+    post:
+      security:
+        - bearerAuth: []
+      description: Move attachment to trash
+      parameters:
+        - in: path
+          name: attachmentId
+          type: string
+          required: true
+          description: Attachment Id
+      operationId: moveTrash
+      responses:
+        200:
+          description: Move attachment to trash
+  /attachments/{attachmentsId}/restore:
+    summary: Restore attachment
+    x-swagger-router-controller: attachment
+    post:
+      security:
+        - bearerAuth: []
+      description: Restore attachment
+      parameters:
+        - in: path
+          name: attachmentId
+          type: string
+          required: true
+          description: Attachment Id
+      operationId: restore
+      responses:
+        200:
+          description: Restore attachment

@@ -1,0 +1,180 @@
+openapi: 3.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: Requests should pass a token header.
+paths:
+  /albums:
+    summary: Get all albums
+    x-swagger-router-controller: album
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all albums
+      parameters:
+        - in: query
+          name: syncedAt
+          schema:
+            type: datetime
+          description: Time to sync album
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      operationId: getAlbums
+      responses:
+        200:
+          description: All albums
+    post:
+      security:
+        - bearerAuth: []
+      description: Create new album
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          type: string
+          in: formData
+          required: true
+      operationId: create
+      responses:
+        200:
+          description: New album
+  /albums/{albumId}:
+    summary: Get detail album
+    x-swagger-router-controller: album
+    get:
+      security:
+        - bearerAuth: []
+      description: Get detail album
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+      operationId: getAlbum
+      responses:
+        200:
+          description: Get detail album
+    delete:
+      security:
+        - bearerAuth: []
+      description: Delete album
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+      operationId: delete
+      responses:
+        200:
+          description: Delete album
+    put:
+      security:
+        - bearerAuth: []
+      description: Update album
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+        - name: name
+          type: string
+          in: formData
+        - name: coverphoto
+          type: string
+          in: formData
+      operationId: update
+      responses:
+        200:
+          description: Update album
+  /albums/{albumId}/attachments:
+    summary: Get all attachment of album
+    x-swagger-router-controller: album
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all attachment of album
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+        - in: query
+          name: syncedAt
+          schema:
+            type: datetime
+          description: Time to sync album
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      operationId: getAlbumAttachments
+      responses:
+        200:
+          description: Get all attachment of album
+  /albums/{albumId}/locking:
+    summary: Lock the album
+    x-swagger-router-controller: album
+    post:
+      security:
+        - bearerAuth: []
+      description: Lock the album
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+        - name: password
+          type: string
+          in: formData
+      operationId: locking
+      responses:
+        200:
+          description: Lock the album
+  /albums/{albumId}/createShareCode:
+    summary: Create share code to share the album
+    x-swagger-router-controller: album
+    post:
+      security:
+        - bearerAuth: []
+      description: Create share code to share the album
+      parameters:
+        - in: path
+          name: albumId
+          type: string
+          required: true
+          description: Album Id
+      operationId: createShareCode
+      responses:
+        200:
+          description: Create share code to share the album
