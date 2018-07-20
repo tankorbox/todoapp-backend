@@ -30,11 +30,9 @@ export default class TaskRepository extends BaseRepository {
 	restore = async (where) => {
 		return await this._model.update({
 			deletedAt: null
-		}, where)
-	};
-	deletePermanently = async (where) => {
-		return await this._model.delete({
-			where
+		}, {
+			where,
+			paranoid: false
 		})
 	};
 

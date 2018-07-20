@@ -13,9 +13,11 @@ securityDefinitions:
     description: Requests should pass a token header.
 paths:
   /users:
-    summary: Get users
+    summary: Get user's information
     x-swagger-router-controller: user
     get:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
       description: Get a User
@@ -24,75 +26,151 @@ paths:
         200:
           description: An information of user
     put:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
       description: Update user
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-        - name: fullname
+        - name: username
           type: string
           in: formData
+          description: Email address
+        - name: password
+          type: string
+          in: formData
+          description: User's password
+        - name: role
+          type: string
+          in: formData
+          description: User's Role
       operationId: update user
       responses:
         200:
           description: Update User
     post:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
       description: create new user
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-        - name: fullname
+        - name: username
           type: string
           in: formData
-      response:
+          required: true
+          description: Email Address
+        - name: password
+          type: string
+          in: formData
+          required: true
+          description: At least 8 characters, includes 0-9 A-Z a-z
+        - name: displayName
+          type: string
+          in: formData
+          required: true
+          description: No more than 20 characters
+      operationId: create user
+      responses:
         200:
           description: created new user
   /users/{id}:
-    summary: Get users
+    summary: interact with specific person
     x-swagger-router-controller: user
     delete:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
       description: delete user by id
       parameters:
-        - in: path
-          name: email
-          type: string
-          required: true
-          description: Email of user to verify.
-      operationId: verifyEmail
+      operationId: delete user
       responses:
         200:
           description: deleted user
-  /users/avatars/upload:
+  /users/upload-avatar:
     summary: upload avatar
     x-swagger-router-controller: user
     post:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
-      description: Send code to unlock
-      operationId: sendCodeUnlock
+      description: upload an avatar
+      produces:
+        - multipart/form-data
+      comsumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          type: file
+          in: formData
+          required: true
+          description: Upload 600x600 image file (less than 5mb)
+      operationId: upload avatar
       responses:
         200:
-          description: Verify email
-  /users/changePassword:
+          description: Avatar uploaded
+  /users/change-password:
     summary: change user password
     x-swagger-router-controller: user
-    post:
+    put:
+      tags:
+      - "users"
       security:
         - bearerAuth: []
-      description: Unlock all album
+      description: change user password
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-        - name: code
+        - name: oldPassword
           type: string
           in: formData
           required: true
-      operationId: unlockAllAlbum
+        - name: newPassword
+          type: string
+          in: formData
+          required: true
+      operationId: changePassword
       responses:
         200:
-          description: Unlock all album
+          description: Password changed
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "UUID"
+      username:
+        type: "string"
+      password:
+        type: "string"
+      displayName:
+        type: "string"
+      role:
+        type: "string"
+        description: "Order Status"
+        enum:
+        - "normal"
+        - "admin"
+      avatar:
+        type: "string"
+      isActive:
+        type: "boolean"
+        default: true
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      deletedAt:
+        type: string
+        format: date-time
+    xml:
+      name: "User"

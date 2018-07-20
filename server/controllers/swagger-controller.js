@@ -31,7 +31,7 @@ export default class SwaggerController {
     };
 
     home = async (req, res) => {
-        const SWAGGER_URL = 'localhost:6969/api/swagger.json';
+        const SWAGGER_URL = swaggerConfig.SWAGGER_URL;
         res.render('swagger/index', {swaggerUrl: SWAGGER_URL});
     };
 

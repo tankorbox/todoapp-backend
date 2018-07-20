@@ -49,9 +49,9 @@ export default class ItemController {
 	putItem = async (req, res) => {
 		const id = req.params.id;
 		const data = req.body;
-		const result = await itemRepository.update({
-			data
-		}, {
+		console.log(data);
+		const result = await itemRepository.update(
+			data, {
 			where: {
 				id: id
 			}
@@ -61,8 +61,8 @@ export default class ItemController {
 
 	putItems = async (req, res) => {
 		const itemIds = req.body.itemIds;
-		const {name, status} = req.body;
-		const temp = {name, status};
+		const {content, status} = req.body;
+		const temp = {content, status};
 		const data = {};
 		Object.keys(temp).map(key => {
 			if (temp[key]) data[key] = temp[key];

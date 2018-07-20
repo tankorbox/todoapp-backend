@@ -11,38 +11,51 @@ securityDefinitions:
     name: Authorization
     in: header
     description: Requests should pass a token header.
+tags:
+- name: "authentication"
+  description: "Operations about authentication"
+- name: "tasks"
+  description: "Operations about tasks"
+- name: "items"
+  description: "Operations about items"
+- name: "users"
+  description: "Operations about user"
 paths:
-  /albums:
-    summary: Get all albums
-    x-swagger-router-controller: album
+  /tasks:
+    summary: Get all tasks
+    x-swagger-router-controller: tasks
     get:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Get all albums
+      description: Get all tasks
       parameters:
         - in: query
           name: syncedAt
           schema:
             type: datetime
-          description: Time to sync album
+          description: Time to sync tasks
         - in: query
-          name: offset
+          name: page
           schema:
             type: integer
-          description: The number of items to skip before starting to collect the result set
+          description: The page number
         - in: query
           name: limit
           schema:
             type: integer
           description: The numbers of items to return
-      operationId: getAlbums
+      operationId: getTasks
       responses:
         200:
-          description: All albums
+          description: All tasks
     post:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Create new album
+      description: Create new task
       consumes:
         - application/x-www-form-urlencoded
       parameters:
@@ -50,131 +63,232 @@ paths:
           type: string
           in: formData
           required: true
+        - name: content
+          required: true
+          in: formData
+          type: string
+        - name: deadline
+          required: true
+          in: formData
+          type: string
+        - name: status
+          required: true
+          in: formData
+          type: string
       operationId: create
       responses:
         200:
-          description: New album
-  /albums/{albumId}:
-    summary: Get detail album
-    x-swagger-router-controller: album
-    get:
-      security:
-        - bearerAuth: []
-      description: Get detail album
-      parameters:
-        - in: path
-          name: albumId
-          type: string
-          required: true
-          description: Album Id
-      operationId: getAlbum
-      responses:
-        200:
-          description: Get detail album
+          description: New task
     delete:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Delete album
+      description: delete multiple tasks
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
-        - in: path
-          name: albumId
+        - name: taskIds
           type: string
-          required: true
-          description: Album Id
-      operationId: delete
+          in: body
+          schema:
+              $ref: '#/definitions/MessageTaskBulkDelete'
+      operationId: delete multiple
       responses:
         200:
-          description: Delete album
+          description: Deleted tasks
     put:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Update album
+      description: Update multiple tasks
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: taskIds
+          type: string
+          in: body
+          schema:
+            $ref: '#/definitions/MessageTaskBulkUpdate'
+      operationId: update multiple
+      responses:
+        200:
+          description: Update multiple tasks
+  /tasks/{id}:
+    summary: Get task detail
+    x-swagger-router-controller: tasks
+    get:
+      tags:
+      - "tasks"
+      security:
+        - bearerAuth: []
+      description: Get task detail
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Task Id
+      operationId: getTaskById
+      responses:
+        200:
+          description: Get task detail
+    delete:
+      tags:
+      - "tasks"
+      security:
+        - bearerAuth: []
+      description: delete task
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Task Id
+      operationId: deleteTask
+      responses:
+        200:
+          description: Delete task
+    put:
+      tags:
+      - "tasks"
+      security:
+        - bearerAuth: []
+      description: Update task
       consumes:
         - application/x-www-form-urlencoded
       parameters:
         - in: path
-          name: albumId
+          name: id
           type: string
           required: true
-          description: Album Id
+          description: Task Id
+        - name: status
+          type: string
+          in: formData
+          required: true
         - name: name
           type: string
           in: formData
-        - name: coverphoto
+          required: true
+        - name: content
           type: string
           in: formData
-      operationId: update
+          required: true
+        - name: deadline
+          type: string
+          in: formData
+          required: true
+      operationId: updateTask
       responses:
         200:
-          description: Update album
-  /albums/{albumId}/attachments:
-    summary: Get all attachment of album
-    x-swagger-router-controller: album
+          description: Update task
+  /tasks/trashed:
+    summary: All trashed tasks
+    x-swagger-router-controller: tasks
     get:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Get all attachment of album
+      description: Get all trashed tasks
       parameters:
-        - in: path
-          name: albumId
-          type: string
+        - in: query
+          name: page
+          type: integer
           required: true
-          description: Album Id
-        - in: query
-          name: syncedAt
-          schema:
-            type: datetime
-          description: Time to sync album
-        - in: query
-          name: offset
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
         - in: query
           name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
+          type: integer
+          required: true
       operationId: getAlbumAttachments
       responses:
         200:
-          description: Get all attachment of album
-  /albums/{albumId}/locking:
-    summary: Lock the album
-    x-swagger-router-controller: album
-    post:
+          description: Get all trashed tasks
+  /tasks/restore:
+    summary: Restore trashed tasks
+    x-swagger-router-controller: tasks
+    put:
+      tags:
+      - "tasks"
       security:
         - bearerAuth: []
-      description: Lock the album
+      description: restore trashed tasks
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - in: path
-          name: albumId
+        - in: body
+          name: taskIds
           type: string
           required: true
-          description: Album Id
-        - name: password
-          type: string
-          in: formData
+          description: Task Ids
+          schema:
+            $ref: '#/definitions/MessageTaskBulkRestore'
       operationId: locking
       responses:
         200:
-          description: Lock the album
-  /albums/{albumId}/createShareCode:
-    summary: Create share code to share the album
-    x-swagger-router-controller: album
-    post:
-      security:
-        - bearerAuth: []
-      description: Create share code to share the album
-      parameters:
-        - in: path
-          name: albumId
-          type: string
-          required: true
-          description: Album Id
-      operationId: createShareCode
-      responses:
-        200:
-          description: Create share code to share the album
+          description: restored trashed tasks
+
+definitions:
+  Task:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "UUID"
+      name:
+        type: "string"
+      content:
+        type: "string"
+      deadline:
+        type: "datetime"
+      status:
+        type: "string"
+        description: "Task Status"
+        enum:
+        - "in_progress"
+        - "done"
+      userId:
+        type: "string"
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      deletedAt:
+        type: string
+        format: date-time
+    xml:
+      name: "Task"
+  MessageTaskBulkDelete:
+    type: object
+    properties:
+      taskIds:
+        type: array
+  MessageTaskBulkUpdate:
+    type: object
+    properties:
+      taskIds:
+        type: array
+      name:
+        type: string
+      content:
+        type: string
+      deadline:
+        type: string
+      status:
+        type: string
+        enum:
+        - "in_progress"
+        - "done"
+  MessageTaskBulkRestore:
+    type: object
+    properties:
+      taskIds:
+        type: array
