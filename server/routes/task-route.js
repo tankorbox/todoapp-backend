@@ -14,8 +14,7 @@ module.exports = (app, router) => {
 
 	router
 		.route('/tasks/trashed')
-		.get([authController.isAuth], Wrapper(taskController.getTrashes))
-		.delete([authController.isAuth], Wrapper(taskController.deleteTaskPermanently));
+		.get([authController.isAuth], Wrapper(taskController.getTrashes));
 
 	router
 		.route('/tasks/restore')
@@ -24,6 +23,7 @@ module.exports = (app, router) => {
 	router
 		.route('/tasks/:id')
 		.get([authController.isAuth], Wrapper(taskController.getTask))
-		.put([authController.isAuth], Wrapper(taskController.putTaskUpdate));
+		.put([authController.isAuth], Wrapper(taskController.putTaskUpdate))
+		.delete([authController.isAuth], Wrapper(taskController.deleteTask));
 
 };

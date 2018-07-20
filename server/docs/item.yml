@@ -12,97 +12,167 @@ securityDefinitions:
     in: header
     description: Requests should pass a token header.
 paths:
-  /attachments:
+  /items:
     summary: Create new attachemt
-    x-swagger-router-controller: attachment
+    x-swagger-router-controller: items
     post:
+      tags:
+      - "items"
       security:
         - bearerAuth: []
-      description: Create new attachemt
+      description: Create new item
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-        - name: file
-          type: file
-          in: formData
-          required: true
-        - name: albumId
+        - name: content
           type: string
           in: formData
-        - name: width
-          type: integer
+          required: true
+        - name: status
+          type: string
+          enum:
+            - "in_progress"
+            - "done"
           in: formData
           required: true
-        - name: height
-          type: integer
+        - name: taskId
+          type: string
           in: formData
           required: true
       operationId: create
       responses:
         200:
-          description: New attachemt
-  /attachments/{attachmentId}:
-    summary: Show attachment
-    x-swagger-router-controller: attachment
-    get:
-      security:
-        - bearerAuth: []
-      description: Show attachment
-      parameters:
-        - in: path
-          name: attachmentId
-          type: string
-          required: true
-          description: Attachment Id
-      operationId: view
-      responses:
-        200:
-          description: Show attachment
+          description: New item created
     delete:
+      tags:
+      - "items"
       security:
         - bearerAuth: []
-      description: Delete attachment
+      description: Delete multiple items
+      comsumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
-        - in: path
-          name: attachmentId
+        - in: body
+          name: itemIds
           type: string
           required: true
-          description: Attachment Id
+          description: Item Ids
+          schema:
+            $ref: '#/definitions/MessageItemBulkDelete'
       operationId: delete
       responses:
         200:
-          description: Delete attachment
-  /attachments/{attachmentsId}/moveTrash:
-    summary: Move attachment to trash
-    x-swagger-router-controller: attachment
-    post:
+          description: Deleted Items
+    put:
+      tags:
+      - "items"
       security:
         - bearerAuth: []
-      description: Move attachment to trash
+      description: Update multiple items
       parameters:
-        - in: path
-          name: attachmentId
+        - in: body
+          name: itemIds
           type: string
           required: true
-          description: Attachment Id
-      operationId: moveTrash
+          description: Item Ids
+          schema:
+            $ref: '#/definitions/MessageItemBulkUpdate'
+      operationId: view
       responses:
         200:
-          description: Move attachment to trash
-  /attachments/{attachmentsId}/restore:
-    summary: Restore attachment
-    x-swagger-router-controller: attachment
-    post:
+          description: Update multiple items
+  /items/{id}:
+    summary: Specific item
+    x-swagger-router-controller: items
+    get:
+      tags:
+      - "items"
       security:
         - bearerAuth: []
-      description: Restore attachment
+      description: Show Item
       parameters:
         - in: path
-          name: attachmentId
+          name: id
           type: string
           required: true
-          description: Attachment Id
-      operationId: restore
+          description: Item Id
+      operationId: view
       responses:
         200:
-          description: Restore attachment
+          description: Show item
+    put:
+      tags:
+      - "items"
+      security:
+        - bearerAuth: []
+      description: Update item
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Item Id
+        - name: content
+          required: true
+          type: string
+          in: formData
+          description: Item content
+        - name: status
+          type: string
+          required: true
+          in: formData
+          description: Item status
+      operationId: delete
+      responses:
+        200:
+          description: Update item
+definitions:
+  Item:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "UUID"
+      content:
+        type: "string"
+      status:
+        type: "string"
+        description: "Task Status"
+        enum:
+        - "in_progress"
+        - "done"
+      taskId:
+        type: "string"
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      deletedAt:
+        type: string
+        format: date-time
+    xml:
+      name: "Item"
+
+  MessageItemBulkDelete:
+    type: object
+    properties:
+      itemIds:
+        type: array
+  MessageItemBulkUpdate:
+    type: object
+    properties:
+      itemIds:
+        type: array
+      content:
+        type: string
+      status:
+        type: string
+        enum:
+          - "in_progress"
+          - "done"

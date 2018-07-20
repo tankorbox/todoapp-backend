@@ -48,10 +48,7 @@ export default class BaseRepository {
 			updatedAt: now,
 			deletedAt: now
 		}, {
-			where,
-			returning: true,
-			plain: true,
-			paranoid: false
+			where
 		})
 	}
 

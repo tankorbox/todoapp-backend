@@ -3,7 +3,8 @@ import Response from "../helpers/response";
 import {Item} from '../models';
 import NotFoundError from "../errors/not-found-error";
 import InternalError from "../errors/internal-error";
-import {Op} from '../models/index'
+import {Op} from '../models/index';
+import Moment from 'moment';
 
 export default class TaskController {
 
@@ -11,6 +12,13 @@ export default class TaskController {
 		const page = req.query.page;
 		const limit = req.query.limit;
 		const userId = req.user.id;
+		const syncedAt = req.query.syncedAt;
+		let updatedAt = null;
+		if (syncedAt) {
+			updatedAt = {
+				[Op.gt]: Moment(syncedAt).utc()
+			};
+		}
 		let tasks = await taskRepository.getAll({
 			order: [
 				['updatedAt', 'DESC']
@@ -102,7 +110,24 @@ export default class TaskController {
 		}
 	};
 
-	putTasks = async(req, res) => {
+	deleteTask = async (req, res) => {
+		console.log('delete task');
+		const userId = req.user.id;
+		const taskId = req.params.id;
+		const whereCondition = {
+			id: taskId,
+			userId: userId
+		};
+		try {
+			const result = await taskRepository.delete(whereCondition);
+			return Response.success(res, result);
+		}
+		catch (e) {
+			throw new InternalError(e);
+		}
+	};
+
+	putTasks = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
 		const {status, name, content, deadline} = req.body;
@@ -133,13 +158,13 @@ export default class TaskController {
 		const page = req.params.page;
 		const tasks = await taskRepository.getTrashes({
 			order: [
-				['updatedAt','DESC']
+				['updatedAt', 'DESC']
 			],
 			page: page,
 			where: {
 				userId: userId,
 				deletedAt: {
-					[Op.not] : null
+					[Op.not]: null
 				}
 			},
 			paranoid: false
@@ -161,20 +186,7 @@ export default class TaskController {
 			return Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError('Something went wrong!');
+			throw new InternalError(e);
 		}
 	};
-
-	deleteTaskPermanently = async(req, res) => {
-		const taskIds = req.body.taskIds;
-		const userId = req.user.id;
-		const whereCondition = {
-			id: {
-				[Op.in] : taskIds
-			},
-			userId: userId
-		};
-		const result = await taskRepository.deletePermanently(whereCondition);
-		return Response.success(res, result);
-	}
 }

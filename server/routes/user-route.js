@@ -12,15 +12,15 @@ module.exports = (app, router) => {
 		.put([authController.isAuth], Wrapper(userController.putUser));
 
 	router
-		.route('users/:id')
-		.delete([authController.isAuth, authController.isAdmin], Wrapper(userController.deleteUser));
-
-	router
-		.route('/users/avatars/upload')
+		.route('/users/upload-avatar')
 		.post([authController.isAuth], Wrapper(userController.uploadAvatar));
 
 	router
-		.route('/users/changePassword')
+		.route('/users/change-password')
 		.put([authController.isAuth], Wrapper(userController.changePassword));
+
+	router
+		.route('users/:id')
+		.delete([authController.isAuth, authController.isAdmin], Wrapper(userController.deleteUser));
 
 };

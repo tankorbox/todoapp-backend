@@ -1,0 +1,73 @@
+openapi: 3.0.0
+paths:
+  /auth/login:
+    summary: Log into system
+    x-swagger-router-controller: auth
+    post:
+      tags:
+      - "authentication"
+      description: Log into system
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          description: Email Address
+          type: string
+          in: formData
+          required: true
+        - name: password
+          description: User password
+          type: string
+          in: formData
+          required: true
+      responses:
+        200:
+          description: Logged in
+        400:
+          description: Log in failed
+  /auth/logout:
+    summary: Log out
+    x-swagger-router-controller: auth
+    post:
+      tags:
+      - "authentication"
+      description: Log out
+      parameters:
+        - in: formData
+          name: username
+          type: string
+          required: true
+          description: email address
+      responses:
+        200:
+          description: Logged out
+  /auth/signup:
+    summary: Register a new account
+    x-swagger-router-controller: auth
+    post:
+      tags:
+      - "authentication"
+      description: Register a new account
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          type: string
+          in: formData
+          required: true
+          description: "Email address"
+        - name: password
+          type: string
+          in: formData
+          required: true
+          description: "Password at least 8 characters includes 0-9, A-Z, a-z"
+        - name: displayName
+          type: string
+          in: formData
+          required: true
+          description: "Display name is no more than 20 characters"
+      responses:
+        200:
+          description: New account

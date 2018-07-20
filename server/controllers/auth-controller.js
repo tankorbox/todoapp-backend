@@ -7,25 +7,32 @@ import Path from 'path';
 import JWT from 'jsonwebtoken';
 import {User} from '../models';
 import {config} from '../config';
-import {validateEmail} from '../helpers/validate-helper';
+import {validateEmail, validatePassword} from '../helpers/validate-helper';
 import {AuthorizationError, ValidationError} from '../errors/index';
 
 
 export default class AuthController {
 
 	signup = async (req, res) => {
-		const {username} = req.body;
+		const {username, password, displayName} = req.body;
 		if (!validateEmail(username)) {
 			const error = new ValidationError('Email is not valid!');
 			throw new Error(error);
 		}
+		if (!validatePassword(password)) {
+			throw new ValidationError('Password is not valid!')
+		}
 		const isUserExist = await this.checkUserExist(username);
-		if (!isUserExist) {
+		if (isUserExist) {
 			const error = new ValidationError('Account is already existed!');
 			throw new Error(error);
 		}
 		try {
-			const user = await userRepository.create(data);
+			const user = await userRepository.create({
+				username: username,
+				password: password,
+				displayName: displayName
+			});
 			return Response.success(res, user);
 		}
 		catch (e) {
