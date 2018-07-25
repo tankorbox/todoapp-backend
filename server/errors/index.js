@@ -8,8 +8,8 @@ import NotFoundError from "./not-found-error";
 
 module.exports = {
     ValidationError,
-    AuthorizationError,
-    BusinessError,
+	AuthorizationError,
+	BusinessError,
 	InternalError,
 	NotFoundError
 };

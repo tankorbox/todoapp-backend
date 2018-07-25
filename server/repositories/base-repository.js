@@ -43,13 +43,11 @@ export default class BaseRepository {
 	}
 
 	async delete(where) {
-		const now = new Date();
-		return await this._model.update({
-			updatedAt: now,
-			deletedAt: now
-		}, {
-			where
-		})
+		return await this._model.destroy({
+			where: where,
+			returning: true,
+			plain: true
+		});
 	}
 
 	async destroy(options) {

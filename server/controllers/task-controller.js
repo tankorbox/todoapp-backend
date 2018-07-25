@@ -1,10 +1,9 @@
 import {taskRepository} from '../repositories'
 import Response from "../helpers/response";
 import {Item} from '../models';
-import NotFoundError from "../errors/not-found-error";
-import InternalError from "../errors/internal-error";
 import {Op} from '../models/index';
 import Moment from 'moment';
+import {ValidationError, AuthorizationError} from '../errors';
 
 export default class TaskController {
 
@@ -29,7 +28,7 @@ export default class TaskController {
 			limit: limit,
 			page: page
 		});
-		return Response.success(res, tasks);
+		Response.success(res, tasks);
 	};
 
 	getTask = async (req, res) => {
@@ -47,9 +46,9 @@ export default class TaskController {
 			}]
 		});
 		if (!task) {
-			throw new NotFoundError('TASK_NOT_FOUND');
+			throw new ValidationError('TASK_NOT_FOUND');
 		}
-		return Response.success(res, task);
+		Response.success(res, task);
 	};
 
 	postTaskCreate = async (req, res) => {
@@ -57,6 +56,7 @@ export default class TaskController {
 		const name = req.body.name.trim();
 		const content = req.body.content.trim();
 		const deadline = req.body.deadline;
+		console.log(deadline);
 		const status = req.body.status;
 		let result = await taskRepository.create({
 			userId: userId,
@@ -64,7 +64,7 @@ export default class TaskController {
 			content: content,
 			deadline: deadline
 		});
-		return Response.success(res, result);
+		Response.success(res, result);
 	};
 
 	putTaskUpdate = async (req, res) => {
@@ -83,10 +83,10 @@ export default class TaskController {
 					id: taskId
 				}
 			});
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -102,10 +102,10 @@ export default class TaskController {
 				userId: userId
 			};
 			const result = await taskRepository.remove(whereCondition);
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -119,10 +119,10 @@ export default class TaskController {
 		};
 		try {
 			const result = await taskRepository.delete(whereCondition);
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -145,10 +145,10 @@ export default class TaskController {
 			const result = await taskRepository.update(data, {
 				where: whereCondition
 			});
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -168,7 +168,7 @@ export default class TaskController {
 			},
 			paranoid: false
 		});
-		return Response.success(res, tasks);
+		Response.success(res, tasks);
 	};
 
 	restoreTask = async (req, res) => {
@@ -182,10 +182,10 @@ export default class TaskController {
 				userId: userId
 			};
 			const result = await taskRepository.restore(whereCondition);
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 }
