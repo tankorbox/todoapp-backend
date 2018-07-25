@@ -1,5 +1,7 @@
 
 
-const wrapper = promise => (...args) => promise(...args).catch(args[args.length - 1]);
+const wrapper = promise => (...args) => {
+	return promise(...args).catch(args[args.length - 1]);
+};
 
 module.exports = wrapper;

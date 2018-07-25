@@ -9,30 +9,31 @@ import {User} from '../models';
 import {config} from '../config';
 import {validateEmail, validatePassword} from '../helpers/validate-helper';
 import {AuthorizationError, ValidationError} from '../errors/index';
+import InternalError from "../errors/internal-error";
 
 
 export default class AuthController {
 
 	signup = async (req, res) => {
-		const {username, password, displayName} = req.body;
+		const {username, password, displayName, avatar} = req.body;
 		if (!validateEmail(username)) {
-			const error = new ValidationError('Email is not valid!');
-			throw new Error(error);
+			throw new ValidationError('Email is not valid!');
 		}
 		if (!validatePassword(password)) {
 			throw new ValidationError('Password is not valid!')
 		}
 		const isUserExist = await this.checkUserExist(username);
 		if (isUserExist) {
-			const error = new ValidationError('Account is already existed!');
-			throw new Error(error);
+			throw new ValidationError('Account is already existed!');
 		}
 		try {
 			const user = await userRepository.create({
 				username: username,
 				password: password,
-				displayName: displayName
+				displayName: displayName,
+				avatar: avatar
 			});
+			delete user.dataValues.password;
 			return Response.success(res, user);
 		}
 		catch (e) {
@@ -52,7 +53,7 @@ export default class AuthController {
 			},
 		});
 		if (!user) {
-			return Response.error(res, new Error('USER_NOT_FOUND'), HTTPStatus.NOT_FOUND);
+			throw new ValidationError('USER_NOT_FOUND');
 		} else {
 			const isValidPassword = await user.comparePassword(password);
 			if (!isValidPassword) {
@@ -95,7 +96,7 @@ export default class AuthController {
 		if (req.user.role === User.Roles.ADMIN) {
 			next();
 		} else {
-			return Response.error(res, new Error('NOT_ALLOWED'), HTTPStatus.UNAUTHORIZED)
+			throw new AuthorizationError('NOT_ALLOWED');
 		}
 	};
 
@@ -127,7 +128,7 @@ export default class AuthController {
 		const cert = FS.readFileSync(path);
 		JWT.verify(token, cert, {algorithms: ['RS256']}, async (error, payload) => {
 			if (error) {
-				return Response.error(res, error, HTTPStatus.BAD_REQUEST);
+				throw new InternalError(error);
 			}
 			try {
 				const user = await userRepository.get({
@@ -136,7 +137,7 @@ export default class AuthController {
 					}
 				});
 				if (!user) {
-					next(new Error('User not found!'));
+					next(new Error('USER_NOT_FOUND'));
 					return;
 				}
 				req.user = user;

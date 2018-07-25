@@ -62,8 +62,7 @@ export default class TaskController {
 			userId: userId,
 			name: name,
 			content: content,
-			deadline: deadline,
-			status: status
+			deadline: deadline
 		});
 		return Response.success(res, result);
 	};

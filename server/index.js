@@ -6,8 +6,17 @@ import FileUpload from 'express-fileupload';
 import Path from 'path';
 import ErrorHandler from './middlewares/error-handler';
 import Routers from './routes/index';
+import I18N from 'i18n';
 
 const app = Express();
+
+I18N.configure({
+	locales: ['en'],
+	directory: __dirname + '/locales',
+	defaultLocale: 'en',
+	autoReload: true,
+	updateFiles: false
+});
 
 app
 	.use(Helmet())

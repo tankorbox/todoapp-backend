@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon bin/www",
+    "pm2_start": "pm2 start bin/www",
+    "pm2_stop": "pm2 stop bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tankorbox@gmail.com",
@@ -33,11 +35,13 @@
     "faker": "^4.1.0",
     "helmet": "^3.12.1",
     "http-status": "^1.2.0",
+    "i18n": "^0.8.3",
     "jsonwebtoken": "^8.3.0",
     "moment": "^2.22.2",
     "morgan": "^1.9.0",
     "path": "^0.12.7",
     "pg": "^7.4.3",
+    "pm2": "^3.0.0",
     "sequelize": "^4.38.0",
     "swagger-jsdoc": "^1.10.2",
     "swagger-ui": "^3.17.3",
