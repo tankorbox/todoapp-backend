@@ -13,7 +13,7 @@ module.exports = (app, router) => {
 
 	router
 		.route('/users/upload-avatar')
-		.post([authController.isAuth], Wrapper(userController.uploadAvatar));
+		.post(Wrapper(userController.uploadAvatar));
 
 	router
 		.route('/users/change-password')

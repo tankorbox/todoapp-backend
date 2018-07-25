@@ -114,3 +114,4 @@ typings/
 /server/config/*.json
 /server/config/cert/
 .idea
+/public/uploads/

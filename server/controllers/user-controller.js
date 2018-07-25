@@ -68,7 +68,7 @@ export default class UserController {
 
 	uploadAvatar = async (req, res) => {
 		if (!req.files) {
-			throw new ValidationError('No files were uploaded.');
+			throw new ValidationError('NO_FILE_UPLOADED');
 		}
 		const file = req.files.file;
 		const fileName = `${uuidv4()}${Path.extname(file.name)}`;
