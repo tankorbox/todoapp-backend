@@ -9,7 +9,6 @@ import {User} from '../models';
 import {config} from '../config';
 import {validateEmail, validatePassword} from '../helpers/validate-helper';
 import {AuthorizationError, ValidationError} from '../errors/index';
-import InternalError from "../errors/internal-error";
 
 
 export default class AuthController {
@@ -17,14 +16,14 @@ export default class AuthController {
 	signup = async (req, res) => {
 		const {username, password, displayName, avatar} = req.body;
 		if (!validateEmail(username)) {
-			throw new ValidationError('Email is not valid!');
+			throw new ValidationError('EMAIL_INVALID');
 		}
 		if (!validatePassword(password)) {
-			throw new ValidationError('Password is not valid!')
+			throw new ValidationError('PASSWORD_INVALID')
 		}
 		const isUserExist = await this.checkUserExist(username);
 		if (isUserExist) {
-			throw new ValidationError('Account is already existed!');
+			throw new ValidationError('ACCOUNT_EXISTED');
 		}
 		try {
 			const user = await userRepository.create({
@@ -34,17 +33,17 @@ export default class AuthController {
 				avatar: avatar
 			});
 			delete user.dataValues.password;
-			return Response.success(res, user);
+			Response.success(res, user);
 		}
 		catch (e) {
-			return Response.error(res, e);
+			throw new ValidationError('Something went wrong!');
 		}
 	};
 
 	login = async (req, res) => {
 		const {username, password} = req.body;
 		if (!validateEmail(username)) {
-			throw new ValidationError('Email is not valid');
+			throw new ValidationError('EMAIL_INVALID');
 		}
 		const user = await userRepository.get({
 			attributes: ['id', 'username', 'password', 'role'],
@@ -57,7 +56,7 @@ export default class AuthController {
 		} else {
 			const isValidPassword = await user.comparePassword(password);
 			if (!isValidPassword) {
-				throw new AuthorizationError('Wrong password');
+				throw new AuthorizationError('WRONG_PASSWORD');
 			}
 			else {
 				const path = Path.resolve(__dirname, '..', 'config', 'cert', 'private.key');
@@ -76,7 +75,7 @@ export default class AuthController {
 					accessToken: token,
 					expire_in: expired_in
 				};
-				return Response.success(res, userJson);
+				Response.success(res, userJson);
 			}
 		}
 	};
@@ -85,9 +84,9 @@ export default class AuthController {
 	logout = async (req, res) => {
 		try {
 			//TODO
-			return Response.success(res, true);
+			Response.success(res, true);
 		} catch (e) {
-			return Response.error(res, e, HTTPStatus.BAD_REQUEST);
+			throw new ValidationError('LOGOUT_FAILED')
 		}
 	};
 
@@ -128,7 +127,7 @@ export default class AuthController {
 		const cert = FS.readFileSync(path);
 		JWT.verify(token, cert, {algorithms: ['RS256']}, async (error, payload) => {
 			if (error) {
-				throw new InternalError(error);
+				throw new ValidationError(error);
 			}
 			try {
 				const user = await userRepository.get({
@@ -137,7 +136,7 @@ export default class AuthController {
 					}
 				});
 				if (!user) {
-					next(new Error('USER_NOT_FOUND'));
+					next(new ValidationError('USER_NOT_FOUND'));
 					return;
 				}
 				req.user = user;

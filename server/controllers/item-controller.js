@@ -1,6 +1,6 @@
 import {Response} from '../helpers/';
 import {itemRepository} from '../repositories'
-import {InternalError, NotFoundError} from "../errors";
+import {ValidationError} from "../errors";
 import {Op} from '../models/index';
 
 export default class ItemController {
@@ -13,10 +13,10 @@ export default class ItemController {
 				status: status,
 				taskId: taskId
 			});
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			throw new InternalError(e);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -28,9 +28,9 @@ export default class ItemController {
 			}
 		});
 		if (!item) {
-			throw new NotFoundError('Item not found!');
+			throw new ValidationError('ITEM_NOT_FOUND');
 		}
-		return Response.success(res, item);
+		Response.success(res, item);
 	};
 
 	deleteItems = async (req, res) => {
@@ -42,7 +42,7 @@ export default class ItemController {
 			}
 		};
 		let result = await itemRepository.deletes(whereCondition);
-		return Response.success(res, result);
+		Response.success(res, result);
 	};
 
 
@@ -56,7 +56,7 @@ export default class ItemController {
 				id: id
 			}
 		});
-		return Response.success(res, result);
+		Response.success(res, result);
 	};
 
 	putItems = async (req, res) => {
@@ -78,6 +78,6 @@ export default class ItemController {
 			data,
 			whereCondition
 		);
-		return Response.success(res, result);
+		Response.success(res, result);
 	};
 }

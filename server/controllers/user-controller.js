@@ -6,7 +6,6 @@ import Path from 'path';
 import uuidv4 from 'uuid/v4';
 import {validatePassword} from '../helpers/validate-helper';
 import {ValidationError} from "../errors";
-import InternalError from "../errors/internal-error";
 
 export default class UserController {
 
@@ -18,9 +17,9 @@ export default class UserController {
 			}
 		});
 		if (!user) {
-			throw new InternalError('USER_NOT_FOUND')
+			throw new ValidationError('USER_NOT_FOUND')
 		}
-		return Response.success(res, user);
+		Response.success(res, user);
 	};
 
 	postUser = async (req, res) => {
@@ -28,10 +27,10 @@ export default class UserController {
 		try {
 			//TODO: validation
 			let user = await userRepository.create(data);
-			return Response.success(res, user)
+			Response.success(res, user)
 		}
 		catch (e) {
-			return Response.error(res, e, HttpStatus.BAD_REQUEST);
+			throw new ValidationError(e);
 		}
 	};
 
@@ -50,7 +49,7 @@ export default class UserController {
 			throw new ValidationError('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
 		}
 		await user.update(data);
-		return Response.success(res, user);
+		Response.success(res, user);
 	};
 
 	deleteUser = async (req, res) => {
@@ -59,10 +58,10 @@ export default class UserController {
 			const result = await userRepository.delete({
 				id: id
 			});
-			return Response.success(res, result);
+			Response.success(res, result);
 		}
 		catch (e) {
-			return Response.error(res, e);
+			throw new Error(e);
 		}
 	};
 
@@ -77,7 +76,7 @@ export default class UserController {
 			originalName: file.name,
 			newName: fileName
 		};
-		return Response.returnSuccess(res, result);
+		Response.returnSuccess(res, result);
 	};
 
 	changePassword = async (req, res) => {
@@ -106,6 +105,6 @@ export default class UserController {
 				id: userId
 			}
 		});
-		return Response.success(res, result);
+		Response.success(res, result);
 	};
 }
