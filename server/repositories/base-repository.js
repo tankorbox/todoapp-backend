@@ -34,9 +34,9 @@ export default class BaseRepository {
 		return await this._model.findOne(options);
 	}
 
-	create = async (data, options) => {
+	async create(data, options) {
 		return await this._model.create(data, options);
-	};
+	}
 
 	async update(values, options) {
 		return await this._model.update(values, options);

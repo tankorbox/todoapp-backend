@@ -3,7 +3,7 @@ import Response from "../helpers/response";
 import {Item} from '../models';
 import {Op} from '../models/index';
 import Moment from 'moment';
-import {ValidationError, AuthorizationError} from '../errors';
+import AppError from '../errors/app-error';
 
 export default class TaskController {
 
@@ -20,7 +20,7 @@ export default class TaskController {
 		}
 		let tasks = await taskRepository.getAll({
 			order: [
-				['updatedAt', 'DESC']
+				['deadline', 'DESC']
 			],
 			where: {
 				userId: userId
@@ -46,7 +46,7 @@ export default class TaskController {
 			}]
 		});
 		if (!task) {
-			throw new ValidationError('TASK_NOT_FOUND');
+			throw AppError.Validation('TASK_NOT_FOUND');
 		}
 		Response.success(res, task);
 	};
@@ -77,53 +77,42 @@ export default class TaskController {
 				data[key] = temp[key];
 			}
 		});
-		try {
-			const result = await taskRepository.update(data, {
-				where: {
-					id: taskId
-				}
-			});
-			Response.success(res, result);
-		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		const result = await taskRepository.update(data, {
+			where: {
+				id: taskId
+			},
+			returning: true,
+			plain: true
+		});
+		Response.success(res, result[1]);
 	};
 
 
 	deleteTasks = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
-		try {
-			const whereCondition = {
-				id: {
-					[Op.in]: taskIds
-				},
-				userId: userId
-			};
-			const result = await taskRepository.remove(whereCondition);
-			Response.success(res, result);
+		const whereCondition = {
+			id: {
+				[Op.in]: taskIds
+			},
+			userId: userId
+		};
+		const result = await taskRepository.remove(whereCondition);
+		if (result) {
+			Response.success(res, true);
 		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		else throw AppError.Validation('Error');
 	};
 
 	deleteTask = async (req, res) => {
-		console.log('delete task');
 		const userId = req.user.id;
 		const taskId = req.params.id;
 		const whereCondition = {
 			id: taskId,
 			userId: userId
 		};
-		try {
-			const result = await taskRepository.delete(whereCondition);
-			Response.success(res, result);
-		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		const result = await taskRepository.delete(whereCondition);
+		Response.success(res, result);
 	};
 
 	putTasks = async (req, res) => {
@@ -133,7 +122,9 @@ export default class TaskController {
 		const temp = {status, name, content, deadline};
 		const data = {};
 		Object.keys(temp).map(key => {
-			if (temp[key]) data[key] = temp[key];
+			if (temp[key]) {
+				data[key] = temp[key];
+			}
 		});
 		const whereCondition = {
 			id: {
@@ -141,15 +132,10 @@ export default class TaskController {
 			},
 			userId: userId
 		};
-		try {
-			const result = await taskRepository.update(data, {
-				where: whereCondition
-			});
-			Response.success(res, result);
-		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		const result = await taskRepository.update(data, {
+			where: whereCondition
+		});
+		Response.success(res, result);
 	};
 
 	getTrashes = async (req, res) => {
@@ -174,18 +160,13 @@ export default class TaskController {
 	restoreTask = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
-		try {
-			const whereCondition = {
-				id: {
-					[Op.in]: taskIds
-				},
-				userId: userId
-			};
-			const result = await taskRepository.restore(whereCondition);
-			Response.success(res, result);
-		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		const whereCondition = {
+			id: {
+				[Op.in]: taskIds
+			},
+			userId: userId
+		};
+		const result = await taskRepository.restore(whereCondition);
+		Response.success(res, result);
 	};
 }

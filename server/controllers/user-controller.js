@@ -5,7 +5,7 @@ import {Task} from '../models/index'
 import Path from 'path';
 import uuidv4 from 'uuid/v4';
 import {validatePassword} from '../helpers/validate-helper';
-import {ValidationError} from "../errors";
+import AppError from "../errors/app-error";
 
 export default class UserController {
 
@@ -17,21 +17,15 @@ export default class UserController {
 			}
 		});
 		if (!user) {
-			throw new ValidationError('USER_NOT_FOUND')
+			throw AppError.NotFound('USER_NOT_FOUND');
 		}
 		Response.success(res, user);
 	};
 
 	postUser = async (req, res) => {
 		const data = req.body;
-		try {
-			//TODO: validation
-			let user = await userRepository.create(data);
-			Response.success(res, user)
-		}
-		catch (e) {
-			throw new ValidationError(e);
-		}
+		let user = await userRepository.create(data);
+		Response.success(res, user);
 	};
 
 	putUser = async (req, res) => {
@@ -46,7 +40,7 @@ export default class UserController {
 			}
 		});
 		if (!user) {
-			throw new ValidationError('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+			throw AppError.NotFound('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
 		}
 		await user.update(data);
 		Response.success(res, user);
@@ -61,13 +55,13 @@ export default class UserController {
 			Response.success(res, result);
 		}
 		catch (e) {
-			throw new Error(e);
+			throw AppError.Validation(e.message);
 		}
 	};
 
 	uploadAvatar = async (req, res) => {
 		if (!req.files) {
-			throw new ValidationError('NO_FILE_UPLOADED');
+			throw AppError.Validation('NO_FILE_UPLOADED');
 		}
 		const file = req.files.file;
 		const fileName = `${uuidv4()}${Path.extname(file.name)}`;
@@ -83,7 +77,7 @@ export default class UserController {
 		const userId = req.user.id;
 		const {oldPassword, newPassword} = req.body;
 		if (!validatePassword(newPassword)) {
-			throw new ValidationError('NEW_PASSWORD_NOT_VALID');
+			throw AppError.Validation('NEW_PASSWORD_NOT_VALID');
 		}
 		const user = await userRepository.get({
 			where: {
@@ -92,11 +86,11 @@ export default class UserController {
 			attributes: ['id', 'username', 'password', 'role'],
 		});
 		if (!user) {
-			throw new ValidationError('USER_NOT_FOUND');
+			throw AppError.NotFound('USER_NOT_FOUND');
 		}
 		const isOldPasswordValid = await user.comparePassword(oldPassword);
 		if (!isOldPasswordValid) {
-			throw new ValidationError('PASSWORD_WRONG');
+			throw AppError.Validation('PASSWORD_WRONG');
 		}
 		const result = await userRepository.update({
 			password: newPassword

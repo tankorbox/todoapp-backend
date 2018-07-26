@@ -8,7 +8,7 @@ import JWT from 'jsonwebtoken';
 import {User} from '../models';
 import {config} from '../config';
 import {validateEmail, validatePassword} from '../helpers/validate-helper';
-import {AuthorizationError, ValidationError} from '../errors/index';
+import AppError from '../errors/app-error';
 
 
 export default class AuthController {
@@ -16,34 +16,29 @@ export default class AuthController {
 	signup = async (req, res) => {
 		const {username, password, displayName, avatar} = req.body;
 		if (!validateEmail(username)) {
-			throw new ValidationError('EMAIL_INVALID');
+			throw AppError.Validation('EMAIL_INVALID');
 		}
 		if (!validatePassword(password)) {
-			throw new ValidationError('PASSWORD_INVALID')
+			throw AppError.Validation('PASSWORD_INVALID')
 		}
 		const isUserExist = await this.checkUserExist(username);
 		if (isUserExist) {
-			throw new ValidationError('ACCOUNT_EXISTED');
+			throw AppError.Validation('ACCOUNT_EXISTED');
 		}
-		try {
-			const user = await userRepository.create({
-				username: username,
-				password: password,
-				displayName: displayName,
-				avatar: avatar
-			});
-			delete user.dataValues.password;
-			Response.success(res, user);
-		}
-		catch (e) {
-			throw new ValidationError('Something went wrong!');
-		}
+		const user = await userRepository.create({
+			username: username,
+			password: password,
+			displayName: displayName,
+			avatar: avatar
+		});
+		user.removePrivateFields();
+		Response.success(res, user);
 	};
 
 	login = async (req, res) => {
 		const {username, password} = req.body;
 		if (!validateEmail(username)) {
-			throw new ValidationError('EMAIL_INVALID');
+			throw AppError.Validation('EMAIL_INVALID');
 		}
 		const user = await userRepository.get({
 			attributes: ['id', 'username', 'password', 'role'],
@@ -52,11 +47,11 @@ export default class AuthController {
 			},
 		});
 		if (!user) {
-			throw new ValidationError('USER_NOT_FOUND');
+			throw AppError.NotFound('USER_NOT_FOUND');
 		} else {
 			const isValidPassword = await user.comparePassword(password);
 			if (!isValidPassword) {
-				throw new AuthorizationError('WRONG_PASSWORD');
+				throw AppError.Validation('WRONG_PASSWORD');
 			}
 			else {
 				const path = Path.resolve(__dirname, '..', 'config', 'cert', 'private.key');
@@ -86,7 +81,7 @@ export default class AuthController {
 			//TODO
 			Response.success(res, true);
 		} catch (e) {
-			throw new ValidationError('LOGOUT_FAILED')
+			throw AppError.Validation('LOGOUT_FAILED')
 		}
 	};
 
@@ -95,7 +90,7 @@ export default class AuthController {
 		if (req.user.role === User.Roles.ADMIN) {
 			next();
 		} else {
-			throw new AuthorizationError('NOT_ALLOWED');
+			throw AppError.Validation('NOT_ALLOWED');
 		}
 	};
 
@@ -127,7 +122,7 @@ export default class AuthController {
 		const cert = FS.readFileSync(path);
 		JWT.verify(token, cert, {algorithms: ['RS256']}, async (error, payload) => {
 			if (error) {
-				throw new ValidationError(error);
+				throw AppError.BadRequest(error);
 			}
 			try {
 				const user = await userRepository.get({
@@ -136,7 +131,7 @@ export default class AuthController {
 					}
 				});
 				if (!user) {
-					next(new ValidationError('USER_NOT_FOUND'));
+					next(AppError.Validation('USER_NOT_FOUND'));
 					return;
 				}
 				req.user = user;

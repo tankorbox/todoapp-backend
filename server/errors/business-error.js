@@ -4,13 +4,14 @@ import HTTPStatus from 'http-status';
 
 export default class BusinessError extends Error {
 
-    constructor(message, status = HTTPStatus.BAD_REQUEST) {
-        super(message);
+	constructor(message, code, status = HTTPStatus.BAD_REQUEST) {
+		super(message);
 
-        Error.captureStackTrace(this, this.constructor);
+		Error.captureStackTrace(this, this.constructor);
 
-        this.name = 'BusinessError';
-        this.status = status;
-    }
+		this.code = code;
+		this.name = 'BusinessError';
+		this.status = status;
+	}
 
 }

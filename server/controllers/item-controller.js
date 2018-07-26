@@ -1,6 +1,6 @@
 import {Response} from '../helpers/';
 import {itemRepository} from '../repositories'
-import {ValidationError} from "../errors";
+import AppError from "../errors/app-error";
 import {Op} from '../models/index';
 
 export default class ItemController {
@@ -16,7 +16,7 @@ export default class ItemController {
 			Response.success(res, result);
 		}
 		catch (e) {
-			throw new ValidationError(e);
+			throw AppError.Validation(e.message);
 		}
 	};
 
@@ -28,7 +28,7 @@ export default class ItemController {
 			}
 		});
 		if (!item) {
-			throw new ValidationError('ITEM_NOT_FOUND');
+			throw AppError.Validation('ITEM_NOT_FOUND');
 		}
 		Response.success(res, item);
 	};

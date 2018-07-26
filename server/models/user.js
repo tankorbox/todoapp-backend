@@ -99,7 +99,9 @@ module.exports = (sequelize, DataTypes) => {
 	User.prototype.comparePassword = async function (password) {
 		return await Bcrypt.compare(password, this.dataValues.password);
 	};
-
+	User.prototype.removePrivateFields = function (password) {
+		delete this.dataValues.password;
+	};
 	User.beforeBulkUpdate(async function (user, options) {
 		if (user.attributes.password) {
 			user.attributes.password = await User.generateHash(user.attributes.password);

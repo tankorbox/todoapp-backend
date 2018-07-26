@@ -4,25 +4,26 @@ import {env} from '../config/index';
 export default class Response {
 
 	static success(res, data = null, pageInfo = null) {
-		if (data) {
+		if (typeof data === 'boolean' || data) {
 			if (pageInfo) {
-				return res.status(HTTPStatus.OK)
+				res
+					.status(HTTPStatus.OK)
 					.json({
 						data: data,
-						pageInfo
+						pageInfo: pageInfo
 					});
 
-			}
-			else {
-				return res.status(HTTPStatus.OK)
+			} else {
+				res
+					.status(HTTPStatus.OK)
 					.json({
-						data: data,
+						data: data
 					});
 			}
-
 		} else {
-			return res.status(HTTPStatus.OK)
-				.json();
+			res
+				.status(HTTPStatus.OK)
+				.json({});
 		}
 	}
 
@@ -46,56 +47,29 @@ export default class Response {
 		}
 	}
 
-	static error(res, e, code = HTTPStatus.BAD_REQUEST) {
-		if (Array.isArray(e.message)) {
-			e.message = e.message.map(item => {
-				return item;
-			}).join('\n');
+	static error(res, error) {
+		if (error.name === 'Error' || error.status === undefined) {
+			Logger.error(error.stack || error.message);
+			res
+				.status(HTTPStatus.INTERNAL_SERVER_ERROR)
+				.send({
+					error: {
+						message: I18N.__('TECHNICAL_ERROR'),
+						code: 'TECHNICAL_ERROR',
+						statusCode: HTTPStatus.INTERNAL_SERVER_ERROR
+					}
+				});
+		} else {
+			res
+				.status(error.status || HTTPStatus.BAD_REQUEST)
+				.send({
+					error: {
+						message: error.message,
+						code: error.code,
+						statusCode: error.status || HTTPStatus.BAD_REQUEST
+					}
+				});
 		}
-
-		if (e.errors) {
-			e.message = e.errors.map(item => {
-				return item.message;
-			}).join('\n');
-		}
-		return res
-			.status(code)
-			.send({
-				error: {
-					message: e.message || e,
-					code: code
-				}
-			});
-	}
-
-	static returnError(res, e, code, param) {
-		if (typeof e !== 'object') {
-			e = new Error(e);
-		}
-		if (env === 'development') {
-			console.log(e);
-		}
-
-		if (Array.isArray(e.message)) {
-			e.message = e.message.map(item => {
-				return item;
-			}).join('\n');
-		}
-
-		if (e.errors) {
-			e.message = e.errors.map(item => {
-				return item.message;
-			}).join('\n');
-		}
-
-		return res
-			.status(code)
-			.send({
-				error: {
-					message: e.message || e,
-					code: code
-				},
-			});
 	}
 
 };
