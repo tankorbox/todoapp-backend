@@ -10,5 +10,6 @@
   "ITEM_NOT_FOUND":"Item doesn't exists",
   "TASK_NOT_FOUND":"Task doesn't exists",
   "NO_FILE_UPLOADED":"No file uploaded!",
-  "NEW_PASSWORD_NOT_VALID":"New password is invalid!"
+  "NEW_PASSWORD_NOT_VALID":"New password is invalid!",
+  "WRONG_INPUT_VALUE": "Check your input value!"
 }

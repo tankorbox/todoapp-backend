@@ -5,6 +5,7 @@ import {Op} from '../models/index';
 import Moment from 'moment';
 import moment from 'moment-timezone';
 import AppError from '../errors/app-error';
+import {validateTaskCreate} from '../helpers/validate-helper';
 
 export default class TaskController {
 
@@ -18,13 +19,13 @@ export default class TaskController {
 		if (date) {
 			const byDate = this.getDateString(date);
 			startDate = Moment(byDate).utc()
-				.set('hour',0)
-				.set('minute',0)
-				.set('second',0).add(-7, 'hours');
+				.set('hour', 0)
+				.set('minute', 0)
+				.set('second', 0).add(-7, 'hours');
 			endDate = Moment(byDate).utc()
-				.set('hour',23)
-				.set('minute',59)
-				.set('second',59).add(-7, 'hours');
+				.set('hour', 23)
+				.set('minute', 59)
+				.set('second', 59).add(-7, 'hours');
 		}
 		const options = {
 			order: [
@@ -38,8 +39,8 @@ export default class TaskController {
 		};
 		if (startDate && endDate) {
 			options.where.deadline = {
-				[Op.gt] : startDate,
-				[Op.lt] : endDate
+				[Op.gt]: startDate,
+				[Op.lt]: endDate
 			}
 		}
 		let tasks = await taskRepository.getAll(options);
@@ -69,8 +70,10 @@ export default class TaskController {
 		const name = req.body.name.trim();
 		const content = req.body.content.trim();
 		const deadline = req.body.deadline;
-		console.log(Moment(deadline).add(-7, 'hours').utc());
 		const status = req.body.status;
+		if (!validateTaskCreate(name, content, deadline, status)) {
+			throw AppError.Validation('WRONG_INPUT_VALUE');
+		}
 		let result = await taskRepository.create({
 			userId: userId,
 			name: name,
@@ -82,14 +85,15 @@ export default class TaskController {
 	putTaskUpdate = async (req, res) => {
 		const taskId = req.params.id;
 		const {name, content, deadline, status} = req.body;
-		console.log(deadline);
 		const temp = {name, content, deadline, status};
+		if (!validateTaskCreate(name, content, deadline, status)) {
+			AppError.Validation('WRONG_INPUT_VALUE');
+		}
 		const data = {};
 		Object.keys(temp).map(key => {
-			if (temp[key]) {
-				data[key] = temp[key];
-			}
+			data[key] = temp[key];
 		});
+		console.log(data);
 		const result = await taskRepository.update(data, {
 			where: {
 				id: taskId

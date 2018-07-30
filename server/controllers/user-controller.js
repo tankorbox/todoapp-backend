@@ -36,6 +36,7 @@ export default class UserController {
 		delete data.username;
 		delete data.password;
 		delete data.role;
+
 		const user = await userRepository.get({
 			where: {
 				id: id

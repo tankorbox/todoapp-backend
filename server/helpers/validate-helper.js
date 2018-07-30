@@ -2,6 +2,8 @@
 
 import ValidationError from '../errors/validation-error';
 import {check, validationResult} from 'express-validator/check';
+import {Task} from '../models';
+import Moment from 'moment';
 
 const errorFormatter = ({msg}) => {
 	return msg;
@@ -28,9 +30,25 @@ const validatePassword = (password) => {
 	return regex.test(String(password));
 };
 
+const validateTaskCreate = (name, content, deadline, status) => {
+	console.log(name, content, deadline, status);
+	if (name.length >= 80 || content.length >= 80) {
+		return false;
+	}
+	if (Moment(deadline).utc() < Moment(Moment.now()).utc()) {
+		return false;
+	}
+	return true;
+};
+
+const validateUserPut = (avatar, displayName)  => {
+
+};
+
 module.exports = {
 	validate: validate,
 	check: check,
 	validateEmail,
-	validatePassword: validatePassword
+	validatePassword: validatePassword,
+	validateTaskCreate
 };

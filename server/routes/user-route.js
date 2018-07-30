@@ -7,7 +7,7 @@ module.exports = (app, router) => {
 
 	router
 		.route('/users')
-		.get([authController.isAuth, authController.isAdmin], Wrapper(userController.getUser))
+		.get([authController.isAuth], Wrapper(userController.getUser))
 		.post([authController.isAuth, authController.isAdmin], Wrapper(userController.postUser))
 		.put([authController.isAuth], Wrapper(userController.putUser));
 

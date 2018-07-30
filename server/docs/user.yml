@@ -34,18 +34,18 @@ paths:
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-        - name: username
+        - name: displayName
           type: string
           in: formData
-          description: Email address
+          description: displayName
         - name: password
           type: string
           in: formData
           description: User's password
-        - name: role
+        - name: avatar
           type: string
           in: formData
-          description: User's Role
+          description: User's avatar
       operationId: update user
       responses:
         200:
