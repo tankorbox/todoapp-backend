@@ -46,6 +46,11 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+        - in: query
+          name: date
+          schema:
+            type: date
+          description: date
       operationId: getTasks
       responses:
         200:

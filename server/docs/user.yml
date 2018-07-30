@@ -115,6 +115,20 @@ paths:
       responses:
         200:
           description: Avatar uploaded
+  /users/avatar/{avatarId}:
+    summary: retrieve avatar
+    x-swagger-router-controller: user
+    post:
+      tags:
+      - "users"
+      security:
+        - bearerAuth: []
+      description: retrieve an avatar
+      parameters:
+      operationId: retrieve avatar
+      responses:
+        200:
+          description: retrieved avatar
   /users/change-password:
     summary: change user password
     x-swagger-router-controller: user

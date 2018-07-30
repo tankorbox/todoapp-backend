@@ -11,6 +11,7 @@ export default class UserController {
 
 	getUser = async (req, res) => {
 		const userId = req.user.id;
+		console.log(userId);
 		const user = await userRepository.get({
 			where: {
 				id: userId
@@ -19,6 +20,7 @@ export default class UserController {
 		if (!user) {
 			throw AppError.NotFound('USER_NOT_FOUND');
 		}
+		user.removePrivateFields();
 		Response.success(res, user);
 	};
 
@@ -43,20 +45,16 @@ export default class UserController {
 			throw AppError.NotFound('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
 		}
 		await user.update(data);
+		user.removePrivateFields();
 		Response.success(res, user);
 	};
 
 	deleteUser = async (req, res) => {
 		const id = req.params.id;
-		try {
-			const result = await userRepository.delete({
-				id: id
-			});
-			Response.success(res, result);
-		}
-		catch (e) {
-			throw AppError.Validation(e.message);
-		}
+		const result = await userRepository.delete({
+			id: id
+		});
+		Response.success(res, result);
 	};
 
 	uploadAvatar = async (req, res) => {
@@ -73,9 +71,16 @@ export default class UserController {
 		Response.returnSuccess(res, result);
 	};
 
+	retrieveAvatar = async (req, res) => {
+		const avatarId = req.params.id;
+		return res.sendFile(Path.join(__dirname, '..', '..', 'public', 'uploads', avatarId));
+	};
+
 	changePassword = async (req, res) => {
 		const userId = req.user.id;
 		const {oldPassword, newPassword} = req.body;
+		console.log(oldPassword);
+		console.log(newPassword);
 		if (!validatePassword(newPassword)) {
 			throw AppError.Validation('NEW_PASSWORD_NOT_VALID');
 		}
@@ -99,6 +104,6 @@ export default class UserController {
 				id: userId
 			}
 		});
-		Response.success(res, result);
+		Response.success(res, true);
 	};
 }

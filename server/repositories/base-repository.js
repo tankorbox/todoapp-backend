@@ -1,4 +1,5 @@
 'use strict';
+import {Op} from '../models';
 
 export default class BaseRepository {
 

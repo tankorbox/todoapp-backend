@@ -3,6 +3,7 @@ import Response from "../helpers/response";
 import {Item} from '../models';
 import {Op} from '../models/index';
 import Moment from 'moment';
+import moment from 'moment-timezone';
 import AppError from '../errors/app-error';
 
 export default class TaskController {
@@ -11,14 +12,21 @@ export default class TaskController {
 		const page = req.query.page;
 		const limit = req.query.limit;
 		const userId = req.user.id;
-		const syncedAt = req.query.syncedAt;
-		let updatedAt = null;
-		if (syncedAt) {
-			updatedAt = {
-				[Op.gt]: Moment(syncedAt).utc()
-			};
+		const date = req.query.date;
+		let startDate = null;
+		let endDate = null;
+		if (date) {
+			const byDate = this.getDateString(date);
+			startDate = Moment(byDate).utc()
+				.set('hour',0)
+				.set('minute',0)
+				.set('second',0).add(-7, 'hours');
+			endDate = Moment(byDate).utc()
+				.set('hour',23)
+				.set('minute',59)
+				.set('second',59).add(-7, 'hours');
 		}
-		let tasks = await taskRepository.getAll({
+		const options = {
 			order: [
 				['deadline', 'DESC']
 			],
@@ -27,10 +35,16 @@ export default class TaskController {
 			},
 			limit: limit,
 			page: page
-		});
+		};
+		if (startDate && endDate) {
+			options.where.deadline = {
+				[Op.gt] : startDate,
+				[Op.lt] : endDate
+			}
+		}
+		let tasks = await taskRepository.getAll(options);
 		Response.success(res, tasks);
 	};
-
 	getTask = async (req, res) => {
 		const id = req.params.id;
 		const task = await taskRepository.get({
@@ -50,26 +64,25 @@ export default class TaskController {
 		}
 		Response.success(res, task);
 	};
-
 	postTaskCreate = async (req, res) => {
 		const userId = req.user.id;
 		const name = req.body.name.trim();
 		const content = req.body.content.trim();
 		const deadline = req.body.deadline;
-		console.log(deadline);
+		console.log(Moment(deadline).add(-7, 'hours').utc());
 		const status = req.body.status;
 		let result = await taskRepository.create({
 			userId: userId,
 			name: name,
 			content: content,
-			deadline: deadline
+			deadline: Moment(deadline).add(-7, 'hours').utc()
 		});
 		Response.success(res, result);
 	};
-
 	putTaskUpdate = async (req, res) => {
 		const taskId = req.params.id;
 		const {name, content, deadline, status} = req.body;
+		console.log(deadline);
 		const temp = {name, content, deadline, status};
 		const data = {};
 		Object.keys(temp).map(key => {
@@ -86,8 +99,6 @@ export default class TaskController {
 		});
 		Response.success(res, result[1]);
 	};
-
-
 	deleteTasks = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
@@ -98,12 +109,8 @@ export default class TaskController {
 			userId: userId
 		};
 		const result = await taskRepository.remove(whereCondition);
-		if (result) {
-			Response.success(res, true);
-		}
-		else throw AppError.Validation('Error');
+		Response.success(res, true);
 	};
-
 	deleteTask = async (req, res) => {
 		const userId = req.user.id;
 		const taskId = req.params.id;
@@ -112,9 +119,9 @@ export default class TaskController {
 			userId: userId
 		};
 		const result = await taskRepository.delete(whereCondition);
+		console.log(result);
 		Response.success(res, result);
 	};
-
 	putTasks = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
@@ -137,7 +144,6 @@ export default class TaskController {
 		});
 		Response.success(res, result);
 	};
-
 	getTrashes = async (req, res) => {
 		const userId = req.user.id;
 		const page = req.params.page;
@@ -156,7 +162,6 @@ export default class TaskController {
 		});
 		Response.success(res, tasks);
 	};
-
 	restoreTask = async (req, res) => {
 		const userId = req.user.id;
 		const taskIds = req.body.taskIds;
@@ -169,4 +174,10 @@ export default class TaskController {
 		const result = await taskRepository.restore(whereCondition);
 		Response.success(res, result);
 	};
+
+	getDateString(date) {
+		const startIndex = date.indexOf('"');
+		const lastIndex = date.lastIndexOf('"');
+		return date.slice(startIndex + 1, lastIndex);
+	}
 }

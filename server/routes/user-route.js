@@ -16,6 +16,10 @@ module.exports = (app, router) => {
 		.post(Wrapper(userController.uploadAvatar));
 
 	router
+		.route('/users/avatar/:id')
+		.get(Wrapper(userController.retrieveAvatar));
+
+	router
 		.route('/users/change-password')
 		.put([authController.isAuth], Wrapper(userController.changePassword));
 
