@@ -54,10 +54,7 @@ export default class TaskController {
 			},
 			include: [{
 				model: Item,
-				as: 'items',
-				attributes: {
-					exclude: ['deletedAt', 'createdAt']
-				}
+				as: 'items'
 			}]
 		});
 		if (!task) {
@@ -66,6 +63,7 @@ export default class TaskController {
 		Response.success(res, task);
 	};
 	postTaskCreate = async (req, res) => {
+		const id = req.body.id;
 		const userId = req.user.id;
 		const name = req.body.name.trim();
 		const content = req.body.content.trim();
@@ -75,6 +73,7 @@ export default class TaskController {
 			throw AppError.Validation('WRONG_INPUT_VALUE');
 		}
 		let result = await taskRepository.create({
+			id: id,
 			userId: userId,
 			name: name,
 			content: content,
