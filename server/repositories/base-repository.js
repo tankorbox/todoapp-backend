@@ -1,10 +1,13 @@
 'use strict';
-import {Op} from '../models';
 
 export default class BaseRepository {
 
 	constructor(model) {
-		this._model = model
+		this._model = model;
+		this._model.hook('beforeCreate', (instance, opts) => {
+			console.log('An Instance has been created');
+			console.log(instance);
+		});
 	}
 
 	async getAll(options) {
