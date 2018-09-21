@@ -5,13 +5,16 @@ import {Wrapper} from '../helpers'
 
 module.exports = (app, router) => {
 
-	router.route('/auth/login')
+	router
+		.route('/auth/login')
 		.post(Wrapper(authController.login));
 
-	router.route('/auth/logout')
+	router
+		.route('/auth/logout')
 		.post(Wrapper(authController.logout));
 
-	router.route('/auth/signup')
+	router
+		.route('/auth/signup')
 		.post(Wrapper(authController.signup));
 
 };

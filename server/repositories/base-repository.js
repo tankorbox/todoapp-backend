@@ -3,7 +3,11 @@
 export default class BaseRepository {
 
 	constructor(model) {
-		this._model = model
+		this._model = model;
+		this._model.hook('beforeCreate', (instance, opts) => {
+			console.log('An Instance has been created');
+			console.log(instance);
+		});
 	}
 
 	async getAll(options) {
@@ -19,24 +23,25 @@ export default class BaseRepository {
 		}
 		if (!options.attributes) {
 			options.attributes = {
-				exclude: ['password', 'deletedAt', 'createdAt', 'updatedAt']
+				exclude: ['password']
 			};
 		}
+		options.paranoid = false;
 		return await this._model.findAll(options);
 	}
 
 	async get(options) {
 		if (!options.attributes) {
 			options.attributes = {
-				exclude: ['deletedAt', 'createdAt', 'updatedAt']
+				exclude: ['deletedAt']
 			}
 		}
 		return await this._model.findOne(options);
 	}
 
-	create = async (data, options) => {
+	async create(data, options) {
 		return await this._model.create(data, options);
-	};
+	}
 
 	async update(values, options) {
 		return await this._model.update(values, options);

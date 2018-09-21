@@ -20,7 +20,7 @@ export default class UserRepository extends BaseRepository{
 		}
 		if (!options.attributes) {
 			options.attributes = {
-				exclude: ['password', 'deletedAt', 'createdAt', 'updatedAt']
+				exclude: ['password', 'deletedAt']
 			};
 		}
 		return await this._model.findAll(options);
@@ -29,7 +29,7 @@ export default class UserRepository extends BaseRepository{
 	async get(options) {
 		if (!options.attributes) {
 			options.attributes = {
-				exclude: ['password', 'deletedAt', 'createdAt', 'updatedAt']
+				exclude: ['password', 'deletedAt']
 			};
 		}
 		return await this._model.findOne(options);
